@@ -14,7 +14,7 @@ const getCatById = (req, res) => {
 };
 
 const postCat = (req, res) => {
-  console.log('postCat', req.body);
+  // console.log('postCat', req.body);
   const result = addCat(req.body);
   if (result.cat_id) {
     res.status(201);
