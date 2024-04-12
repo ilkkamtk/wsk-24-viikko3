@@ -63,11 +63,15 @@ const modifyCat = async (cat, id, user) => {
   return {message: 'success'};
 };
 
-const removeCat = async (id) => {
-  const [rows] = await promisePool.execute(
-    'DELETE FROM cats WHERE cat_id = ?',
-    [id]
+const removeCat = async (id, user) => {
+  let sql = promisePool.format(
+    `DELETE FROM cats WHERE cat_id = ? AND owner = ?`,
+    [id, user.user_id]
   );
+  if (user.role === 'admin') {
+    sql = promisePool.format(`DELETE FROM cats WHERE cat_id = ?`, [id]);
+  }
+  const [rows] = await promisePool.execute(sql);
   console.log('rows', rows);
   if (rows.affectedRows === 0) {
     return false;
@@ -76,48 +80,3 @@ const removeCat = async (id) => {
 };
 
 export {listAllCats, findCatById, addCat, modifyCat, removeCat};
-
-// // mock data
-// const catItems = [
-//   {
-//     cat_id: 9592,
-//     cat_name: 'Frank',
-//     weight: 11,
-//     owner: 3609,
-//     filename: 'f3dbafakjsdfhg4',
-//     birthdate: '2021-10-12',
-//   },
-//   {
-//     cat_id: 9590,
-//     cat_name: 'Mittens',
-//     weight: 8,
-//     owner: 3602,
-//     filename: 'f3dasdfkjsdfhgasdf',
-//     birthdate: '2021-10-12',
-//   },
-// ];
-
-// const listAllCats = () => {
-//   return catItems;
-// };
-
-// const findCatById = (id) => {
-//   return catItems.find((item) => Number(item.cat_id) === id);
-// };
-
-// const addCat = (cat, file) => {
-//   const {cat_name, weight, owner, filename, birthdate} = cat;
-//   const newId = catItems[0].cat_id + 1;
-//   catItems.unshift({
-//     cat_id: newId,
-//     cat_name,
-//     weight,
-//     owner: Number(owner),
-//     filename,
-//     birthdate,
-//     file
-//   });
-//   return {cat_id: newId, file};
-// };
-
-// export {listAllCats, findCatById, addCat};
