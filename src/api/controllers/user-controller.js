@@ -25,15 +25,23 @@ const getUserById = async (req, res) => {
   res.json(user);
 };
 
-const postUser = async (req, res) => {
+const postUser = async (req, res, next) => {
   req.body.password = bcrypt.hashSync(req.body.password, 10);
-  const result = await addUser(req.body);
-  if (!result) {
-    res.sendStatus(400);
-    return;
+
+  try {
+
+    const result = await addUser(req.body);
+    if (!result) {
+      const error = new Error("Invalid or missing fields")
+      error.status = 400
+      next(error);
+      return;
+    }
+    res.status(201);
+    res.json(result);
+  } catch (error) {
+    next(error)
   }
-  res.status(201);
-  res.json(result);
 };
 
 const putUser = async (req, res) => {
@@ -73,4 +81,4 @@ const deleteUser = async (req, res) => {
   res.json(result);
 };
 
-export {getUser, getUserById, postUser, putUser, deleteUser};
+export { getUser, getUserById, postUser, putUser, deleteUser };
